@@ -87,6 +87,36 @@ func TestNew(t *testing.T) {
 			wantErr:     false,
 			errContains: "",
 		},
+		{
+			name: "matrix with negative numbers",
+			records: [][]string{
+				{"-1", "-2", "-3"},
+				{"-4", "-5", "-6"},
+				{"-7", "-8", "-9"},
+			},
+			wantErr:     false,
+			errContains: "",
+		},
+		{
+			name: "matrix with zero values",
+			records: [][]string{
+				{"0", "0", "0"},
+				{"0", "0", "0"},
+				{"0", "0", "0"},
+			},
+			wantErr:     false,
+			errContains: "",
+		},
+		{
+			name: "matrix with mixed signs",
+			records: [][]string{
+				{"1", "-2", "3"},
+				{"-4", "5", "-6"},
+				{"7", "-8", "9"},
+			},
+			wantErr:     false,
+			errContains: "",
+		},
 	}
 
 	for _, tt := range tests {
@@ -104,103 +134,164 @@ func TestNew(t *testing.T) {
 }
 
 func TestMatrixOperations(t *testing.T) {
-	records := [][]string{
-		{"1", "2", "3"},
-		{"4", "5", "6"},
-		{"7", "8", "9"},
-	}
-
-	m, err := New(records)
-	if err != nil {
-		t.Fatalf("Failed to create matrix: %v", err)
-	}
-
 	tests := []struct {
 		name      string
-		operation func() interface{}
+		records   [][]string
+		operation func(*Matrix) interface{}
 		want      interface{}
 	}{
 		{
-			name:      "Echo",
-			operation: func() interface{} { return m.Echo() },
+			name: "Echo with positive numbers",
+			records: [][]string{
+				{"1", "2", "3"},
+				{"4", "5", "6"},
+				{"7", "8", "9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Echo() },
 			want:      "1,2,3\n4,5,6\n7,8,9",
 		},
 		{
-			name:      "Invert",
-			operation: func() interface{} { return m.Invert() },
+			name: "Echo with negative numbers",
+			records: [][]string{
+				{"-1", "-2", "-3"},
+				{"-4", "-5", "-6"},
+				{"-7", "-8", "-9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Echo() },
+			want:      "-1,-2,-3\n-4,-5,-6\n-7,-8,-9",
+		},
+		{
+			name: "Invert with positive numbers",
+			records: [][]string{
+				{"1", "2", "3"},
+				{"4", "5", "6"},
+				{"7", "8", "9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Invert() },
 			want:      "1,4,7\n2,5,8\n3,6,9",
 		},
 		{
-			name:      "Flatten",
-			operation: func() interface{} { return m.Flatten() },
+			name: "Invert with negative numbers",
+			records: [][]string{
+				{"-1", "-2", "-3"},
+				{"-4", "-5", "-6"},
+				{"-7", "-8", "-9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Invert() },
+			want:      "-1,-4,-7\n-2,-5,-8\n-3,-6,-9",
+		},
+		{
+			name: "Flatten with positive numbers",
+			records: [][]string{
+				{"1", "2", "3"},
+				{"4", "5", "6"},
+				{"7", "8", "9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Flatten() },
 			want:      "1,2,3,4,5,6,7,8,9",
 		},
 		{
-			name:      "Sum",
-			operation: func() interface{} { return m.Sum() },
+			name: "Flatten with negative numbers",
+			records: [][]string{
+				{"-1", "-2", "-3"},
+				{"-4", "-5", "-6"},
+				{"-7", "-8", "-9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Flatten() },
+			want:      "-1,-2,-3,-4,-5,-6,-7,-8,-9",
+		},
+		{
+			name: "Sum with positive numbers",
+			records: [][]string{
+				{"1", "2", "3"},
+				{"4", "5", "6"},
+				{"7", "8", "9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Sum() },
 			want:      45,
 		},
 		{
-			name:      "Multiply",
-			operation: func() interface{} { return m.Multiply() },
+			name: "Sum with negative numbers",
+			records: [][]string{
+				{"-1", "-2", "-3"},
+				{"-4", "-5", "-6"},
+				{"-7", "-8", "-9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Sum() },
+			want:      -45,
+		},
+		{
+			name: "Sum with mixed signs",
+			records: [][]string{
+				{"1", "-2", "3"},
+				{"-4", "5", "-6"},
+				{"7", "-8", "9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Sum() },
+			want:      5,
+		},
+		{
+			name: "Sum with zeros",
+			records: [][]string{
+				{"0", "0", "0"},
+				{"0", "0", "0"},
+				{"0", "0", "0"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Sum() },
+			want:      0,
+		},
+		{
+			name: "Multiply with positive numbers",
+			records: [][]string{
+				{"1", "2", "3"},
+				{"4", "5", "6"},
+				{"7", "8", "9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Multiply() },
 			want:      362880,
+		},
+		{
+			name: "Multiply with negative numbers",
+			records: [][]string{
+				{"-1", "-2", "-3"},
+				{"-4", "-5", "-6"},
+				{"-7", "-8", "-9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Multiply() },
+			want:      -362880,
+		},
+		{
+			name: "Multiply with mixed signs",
+			records: [][]string{
+				{"1", "-2", "3"},
+				{"-4", "5", "-6"},
+				{"7", "-8", "9"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Multiply() },
+			want:      362880,
+		},
+		{
+			name: "Multiply with zeros",
+			records: [][]string{
+				{"0", "0", "0"},
+				{"0", "0", "0"},
+				{"0", "0", "0"},
+			},
+			operation: func(m *Matrix) interface{} { return m.Multiply() },
+			want:      0,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.operation()
+			m, err := New(tt.records)
+			if err != nil {
+				t.Fatalf("Failed to create matrix: %v", err)
+			}
+			got := tt.operation(m)
 			if got != tt.want {
 				t.Errorf("%s() = %v, want %v", tt.name, got, tt.want)
 			}
 		})
 	}
-
-	zeroMatrix, _ := New([][]string{
-		{"0", "0", "0"},
-		{"0", "0", "0"},
-		{"0", "0", "0"},
-	})
-	t.Run("Sum_ZeroMatrix", func(t *testing.T) {
-		if got := zeroMatrix.Sum(); got != 0 {
-			t.Errorf("Sum() = %v, want 0", got)
-		}
-	})
-	t.Run("Multiply_ZeroMatrix", func(t *testing.T) {
-		if got := zeroMatrix.Multiply(); got != 0 {
-			t.Errorf("Multiply() = %v, want 0", got)
-		}
-	})
-
-	negMatrix, _ := New([][]string{
-		{"-1", "-2", "-3"},
-		{"-4", "-5", "-6"},
-		{"-7", "-8", "-9"},
-	})
-	t.Run("Sum_NegativeMatrix", func(t *testing.T) {
-		if got := negMatrix.Sum(); got != -45 {
-			t.Errorf("Sum() = %v, want -45", got)
-		}
-	})
-	t.Run("Multiply_NegativeMatrix", func(t *testing.T) {
-		if got := negMatrix.Multiply(); got != -362880 {
-			t.Errorf("Multiply() = %v, want -362880", got)
-		}
-	})
-
-	mixedMatrix, _ := New([][]string{
-		{"1", "0", "-1"},
-		{"2", "0", "-2"},
-		{"3", "0", "-3"},
-	})
-	t.Run("Sum_MixedMatrix", func(t *testing.T) {
-		if got := mixedMatrix.Sum(); got != 0 {
-			t.Errorf("Sum() = %v, want 0", got)
-		}
-	})
-	t.Run("Multiply_MixedMatrix", func(t *testing.T) {
-		if got := mixedMatrix.Multiply(); got != 0 {
-			t.Errorf("Multiply() = %v, want 0", got)
-		}
-	})
 }
