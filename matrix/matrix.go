@@ -24,9 +24,20 @@ func New(records [][]string) (*Matrix, error) {
 		return nil, ErrEmptyMatrix
 	}
 
-	// Validate square matrix
+	// Validate square matrix and check for empty rows
 	rows := len(records)
 	cols := len(records[0])
+
+	// Check for empty rows and consistent row lengths
+	for i, row := range records {
+		if len(row) == 0 {
+			return nil, fmt.Errorf("empty row at position %d", i+1)
+		}
+		if len(row) != cols {
+			return nil, fmt.Errorf("inconsistent row length at position %d: expected %d, got %d", i+1, cols, len(row))
+		}
+	}
+
 	if rows != cols {
 		return nil, ErrNotSquare
 	}
